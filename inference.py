@@ -249,17 +249,19 @@ def main():
             
             ff = xf.copy() 
             ff[y1:y2, x1:x2] = p
+            height, width = ff.shape[:2]
             
             # month region enhancement by GFPGAN
             cropped_faces, restored_faces, restored_img = restorer.enhance(
                 ff, has_aligned=False, only_center_face=True, paste_back=True)
                 # 0,   1,   2,   3,   4,   5,   6,   7,   8,  9, 10,  11,  12,
-            mm = [0,   0,   0,   0,   0,   0,   0,   0,   0,  0, 255, 255, 255, 0, 0, 0, 0, 0, 0]
+            #mm = [0,   0,   0,   0,   0,   0,   0,   0,   0,  0, 255, 255, 255, 0, 0, 0, 0, 0, 0]
+            mm = [0, 255, 255, 255, 255, 255, 255, 255, 0, 0, 255, 255, 255, 0, 0, 0, 0, 0, 0]
             mouse_mask = np.zeros_like(restored_img)
             tmp_mask = enhancer.faceparser.process(restored_img[y1:y2, x1:x2], mm)[0]
             mouse_mask[y1:y2, x1:x2]= cv2.resize(tmp_mask, (x2 - x1, y2 - y1))[:, :, np.newaxis] / 255.
 
-            height, width = ff.shape[:2]
+           
             restored_img, ff, full_mask = [cv2.resize(x, (512, 512)) for x in (restored_img, ff, np.float32(mouse_mask))]
             img = Laplacian_Pyramid_Blending_with_mask(restored_img, ff, full_mask[:, :, 0], 10)
             pp = np.uint8(cv2.resize(np.clip(img, 0 ,255), (width, height)))
