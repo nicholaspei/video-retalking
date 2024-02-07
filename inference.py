@@ -73,7 +73,7 @@ def main():
     lx, ly, rx, ry = int(lx), int(ly), int(rx), int(ry)
     oy1, oy2, ox1, ox2 = cly+ly, min(cly+ry, full_frames[0].shape[0]), clx+lx, min(clx+rx, full_frames[0].shape[1])
     # original_size = (ox2 - ox1, oy2 - oy1)
-    frames_pil = [Image.fromarray(cv2.resize(frame,(512,512))) for frame in full_frames_RGB]
+    frames_pil = [Image.fromarray(cv2.resize(frame,(256,256))) for frame in full_frames_RGB]
 
     # get the landmark according to the detected face.
     if not os.path.isfile('temp/'+base_name+'_landmarks.txt') or args.re_preprocess:
@@ -138,11 +138,11 @@ def main():
         with torch.no_grad():
             expression = split_coeff(net_recon(im_exp_tensor))['exp'][0]
         del net_recon
-    #elif args.exp_img == 'smile':
-    expression = torch.tensor(loadmat('checkpoints/expression.mat')['expression_mouth'])[0]
-    #else:
-    #    print('using expression center')
-    #    expression = torch.tensor(loadmat('checkpoints/expression.mat')['expression_mouth'])[0]
+    elif args.exp_img == 'smile':
+        expression = torch.tensor(loadmat('checkpoints/expression.mat')['expression_mouth'])[0]
+    else:
+        print('using expression center')
+        expression = torch.tensor(loadmat('checkpoints/expression.mat')['expression_center'])[0]
 
     # load DNet, model(LNet and ENet)
     D_Net, model = load_model(args, device)
@@ -282,7 +282,7 @@ def datagen(frames, mels, full_frames, frames_pil, cox):
     img_batch, mel_batch, frame_batch, coords_batch, ref_batch, full_frame_batch = [], [], [], [], [], []
     base_name = args.face.split('/')[-1]
     refs = []
-    image_size = 512 
+    image_size = 256 
 
     # original frames
     kp_extractor = KeypointExtractor()
