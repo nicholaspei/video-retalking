@@ -252,7 +252,7 @@ def main():
             height, width = ff.shape[:2]
             pp = np.uint8(cv2.resize(np.clip(ff, 0 ,512), (width, height)))
 
-            pp, orig_faces, enhanced_faces = enhancer.process(pp, xf, bbox=c, face_enhance=False, possion_blending=True)
+            pp, orig_faces, enhanced_faces = enhancer.process(pp, xf, bbox=c, face_enhance=True, possion_blending=False)
             # month region enhancement by GFPGAN
             cropped_faces, restored_faces, restored_img = restorer.enhance(
                 pp, has_aligned=False, only_center_face=True, paste_back=True)
@@ -264,9 +264,9 @@ def main():
             mouse_mask[y1:y2, x1:x2]= cv2.resize(tmp_mask, (x2 - x1, y2 - y1))[:, :, np.newaxis] / 255.
 
            
-            restored_img, ff, full_mask = [cv2.resize(x, (512, 512)) for x in (restored_img, ff, np.float32(mouse_mask))]
+            restored_img, ff, full_mask = [cv2.resize(x, (1024, 1024)) for x in (restored_img, ff, np.float32(mouse_mask))]
             img = Laplacian_Pyramid_Blending_with_mask(restored_img, ff, full_mask[:, :, 0], 10)
-            pp = np.uint8(cv2.resize(np.clip(img, 0 ,512), (width, height)))
+            pp = np.uint8(cv2.resize(np.clip(img, 0 ,1024), (width, height)))
             out.write(pp)
     out.release()
     
